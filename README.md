@@ -194,7 +194,7 @@ Instead of only map view, offer a stop-focused interface:
 │                      Backend                            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
 │  │   Python    │  │   Redis     │  │  PostgreSQL │      │
-│  │   Flask     │  │   Cache     │  │   + PostGIS │      │
+│  │   FastAPI   │  │   Cache     │  │   + PostGIS │      │
 │  └─────────────┘  └─────────────┘  └─────────────┘      │
 │                                                         │
 │  ┌─────────────┐  ┌─────────────┐                       │
@@ -219,7 +219,7 @@ Instead of only map view, offer a stop-focused interface:
 | **Frontend Web** | React + TypeScript | Component-based, type-safe |
 | **Frontend Mobile** | React Native or PWA | Cross-platform, shared codebase |
 | **Maps** | Haven't chosen yet |
-| **Backend** | Python + Flask | Fast, great for real-time |
+| **Backend** | Python + FastAPI | Fast, great for real-time |
 | **Database** | PostgreSQL + PostGIS | Spatial queries for geolocation |
 | **Cache** | Redis | Fast GTFS-RT data caching |
 | **Push Notifications** | Telegram Bot API + Firebase FCM | Reliable, widely supported |

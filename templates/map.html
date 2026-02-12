@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bus Stops & Buses Map</title>
+  <!-- Leaflet.js CSS -->
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map">
+    <img id="center-marker" src="/static/images/pin-icon.png" style="display:none;" />
+  </div>
+  
+  <!-- Route controls for picking origin/destination -->
+  <div class="route-controls">
+    <div id="route-label" class="route-label" style="display: none;">Where to?</div>
+    <div class="route-buttons" id="routeButtons" style="display: none;">
+      <button id="backBtn" class="route-btn back-btn">←</button>
+      <button id="doneBtn" class="route-btn done-btn">✓ Done</button>
+    </div>
+    <button id="makeRouteBtn" class="route-btn start-btn">Make Route</button>
+  </div>
+  
+  <!-- Container for displaying route summary bars -->
+  <div id="routeSummaries" style="display: none;"></div>
+
+  <button id="cancelRouteBtn" style="display: none;">✕</button>
+  
+  <button id="show-location-btn">Show My Location</button>
+
+  <!-- Leaflet.js JavaScript -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    var stops = JSON.parse('{{ stops | tojson | safe }}');
+    var buses = JSON.parse('{{ buses | tojson | safe }}');
+  </script>
+  <!-- External JS file -->
+  <script type="module" src="/static/main.js"></script>
+  <script>
+    console.log(document.getElementById('makeRouteBtn'));
+    console.log(document.getElementById('doneBtn'));
+    console.log(document.getElementById('backBtn'));
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone
+10,LPT,https://publictransport.com.cy,Asia/Nicosia,en,0035722221416
+11,PAME EXPRESS,https://publictransport.com.cy,Asia/Nicosia,en,0035722221416
+2,ΟΣΥΠΑ,http://www.pafosbuses.com/,Asia/Nicosia,en,0035780005588
+4,ΟΣΕΑ,https://osea.com.cy/en/,Asia/Nicosia,en,0035780005200
+5,INTERCITY,http://www.intercity-buses.com/,Asia/Nicosia,en,0035780007789
+6,ΕΜΕΛ,http://limassolbuses.com/,Asia/Nicosia,en,0035780004080
+9,NPT,https://publictransport.com.cy,Asia/Nicosia,en,0035722221416

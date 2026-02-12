@@ -1,0 +1,354 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.leaflet-tooltip.bus-tooltip {
+    background-color: #185e1e !important; /* background of the box */
+    color: #ffffff !important;           /* text color */
+    font-weight: bold;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+.red-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.pulse-wrapper {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+
+.pulse-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background-color: #007bff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 123, 255, 0.4);
+    border-radius: 100%;
+    transform: translate(-50%, -50%);
+    animation: ripple 1.8s infinite ease-out;
+    z-index: 1;
+}
+
+@keyframes ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.8;
+    }
+    70% {
+        opacity: 0.2;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+.route-controls {
+    position: absolute;
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.route-label {
+    display: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 6px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.route-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.route-btn {
+    font-size: 16px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease, background-color 0.3s ease;
+}
+
+.route-btn:hover {
+    transform: translateY(-2px);
+}
+
+.done-btn {
+    background-color: #28c76f;
+    color: white;
+}
+
+.back-btn {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.start-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+
+  #center-marker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin-left: -12px;
+    margin-top: -24px;
+    z-index: 999;
+    pointer-events: none;
+}
+
+#show-location-btn {
+    position: fixed;  /* Position fixed relative to the viewport */
+    bottom: 2%;         /* 10% from the top of the viewport */
+    right: 1%;         /* 5% from the left of the viewport */
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 1000;     /* Ensure it stays on top of other content */
+    transition: background-color 0.3s ease;
+}
+
+#show-location-btn:hover {
+    background-color: #0056b3;
+}
+
+.stop-popup {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 260px;
+}
+
+.stop-header {
+    display: flex;
+    justify-content: space-between; /* pushes button to the right */
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 6px;
+    padding: 6px; /* or however much padding you want */
+}
+
+.stop-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #000000;
+}
+
+.stop-id {
+    font-size: 12px;
+    color: #666;
+}
+
+.route-list {
+    margin: 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.route-list .route-tag {
+    background-color: #f0f0f0;
+    padding: 3px 7px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.stop-details ul {
+    padding-left: 18px;
+    margin: 6px 0;
+}
+
+.stop-details li {
+    margin-bottom: 6px;
+}
+.arrival-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.arrival-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 4px 6px;
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.route-code {
+    font-weight: bold;
+    color: #007bff;
+    flex-shrink: 0;
+}
+
+.route-desc {
+    flex-grow: 1;
+    margin: 0 6px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.route-time {
+    background-color: #03942c;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.stop-header {
+    position: relative;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+}
+
+.refresh-btn {
+    /* Remove or override these lines if present:
+       position: absolute;
+       top: 0;
+       right: 0;
+    */
+    position: static; /* or just remove position property */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    color: #007bff;
+    border-radius: 4px;
+    transition: transform 0.2s ease;
+}
+.refresh-btn:hover {
+    transform: scale(1.2);
+    background-color: #f0f0f0;
+}
+
+/* Style for the route summaries container */
+#routeSummaries {
+    position: absolute;
+    top: 0;
+    left: 5%; 
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    z-index: 9999;
+    overflow-x: auto; /* if bars overflow horizontally */
+  }
+  
+.route-summary-bar {
+background: #eee;
+border: 1px solid #ccc;
+padding: 8px;
+cursor: pointer;
+min-width: 150px;
+}
+
+.route-summary-bar.highlight {
+background-color: #aaf;
+font-weight: bold;
+}
+
+.route-time {
+font-size: 14px;
+margin-bottom: 4px;
+display: block;
+}
+
+.route-leg-summary {
+    font-size: 13px;
+    color: #444;
+    text-align: center;
+  }
+  
+.bus-number {
+color: #17a452; /* Example: a red color, choose any color you like */
+font-weight: bold;
+}
+
+#cancelRouteBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 0, 0, 0.8);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 32px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 1001;
+  }

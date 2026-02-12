@@ -1,0 +1,10 @@
+{
+  "updaters": [
+  {
+    "type" : "stop-time-updater",
+    "frequencySec" : 15,
+    "feedId" : "1",
+    "url" : "http://20.19.98.194:8328/Api/api/gtfs-realtime"
+  }
+]
+}
