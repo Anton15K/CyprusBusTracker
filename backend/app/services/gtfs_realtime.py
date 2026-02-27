@@ -144,8 +144,7 @@ class GTFSRealtimeParser:
                 if trip_id is None:
                     trip_id = await self._create_new_trip_id(route_id, direction_id, start_time)
             elif (
-                trip_update.trip.schedule_relationship
-                == gtfs_realtime_pb2.TripDescriptor.CANCELED
+                trip_update.trip.schedule_relationship == gtfs_realtime_pb2.TripDescriptor.CANCELED
             ):
                 logger.debug("Skipping canceled trip")
                 continue
@@ -180,9 +179,7 @@ class GTFSRealtimeParser:
             stop_sequence = int(stu.stop_sequence)
             try:
                 arrival_dt = (
-                    _timestamp_to_cyprus_time(stu.arrival.time)
-                    if stu.HasField("arrival")
-                    else None
+                    _timestamp_to_cyprus_time(stu.arrival.time) if stu.HasField("arrival") else None
                 )
                 departure_dt = (
                     _timestamp_to_cyprus_time(stu.departure.time)

@@ -26,7 +26,5 @@ async def client(mock_session):
 
     test_app.dependency_overrides[db_manager.scoped_session_dependency] = _override_session
 
-    async with AsyncClient(
-        transport=ASGITransport(app=test_app), base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
         yield ac

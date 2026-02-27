@@ -18,6 +18,7 @@ def seconds_to_minutes(seconds: int) -> int:
 # Query functions
 # ---------------------------------------------------------------------------
 
+
 async def get_all_stops(session: AsyncSession) -> list[dict]:
     logger.info("Fetching all stops")
     query = text("SELECT stop_id, stop_name, stop_lat, stop_lon FROM stops;")

@@ -43,8 +43,6 @@ async def make_route_endpoint(request: Request):
             otp_url=settings.otp_url,
         )
     except Exception as exc:
-        raise HTTPException(
-            status_code=500, detail=f"Error querying OTP: {exc}"
-        ) from exc
+        raise HTTPException(status_code=500, detail=f"Error querying OTP: {exc}") from exc
 
     return JSONResponse(content=result)

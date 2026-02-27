@@ -1,4 +1,3 @@
-
 from app.db.crud import seconds_to_minutes
 from app.services.gtfs_static import parse_time
 

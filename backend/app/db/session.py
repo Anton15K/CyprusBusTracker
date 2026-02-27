@@ -20,9 +20,7 @@ class DatabaseManager:
         )
 
     def get_scoped_session(self) -> async_scoped_session:
-        return async_scoped_session(
-            session_factory=self.session_factory, scopefunc=current_task
-        )
+        return async_scoped_session(session_factory=self.session_factory, scopefunc=current_task)
 
     async def scoped_session_dependency(self):
         session = self.get_scoped_session()

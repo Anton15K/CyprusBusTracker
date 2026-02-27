@@ -5,9 +5,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_get_buses_returns_200_with_list(client, mock_session):
-    fake_buses = [
-        {"id": 1, "route_id": 10, "route_short_name": "1A", "lat": 35.1, "lon": 33.3}
-    ]
+    fake_buses = [{"id": 1, "route_id": 10, "route_short_name": "1A", "lat": 35.1, "lon": 33.3}]
     with patch(
         "app.api.v1.buses.update_stop_times_and_get_buses", new=AsyncMock(return_value=fake_buses)
     ):

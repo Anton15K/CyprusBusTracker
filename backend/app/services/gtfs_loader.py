@@ -134,6 +134,7 @@ class GraphBuild(BaseOperations):
         self.create_merged_gtfs_in_target_folder()
         self.copy_osm_data()
         import subprocess
+
         cmd = f"java -Xmx2G -jar {self.otp_jar} --build {self.target_folder} --save"
         logger.info("Running OTP build: %s", cmd)
         subprocess.check_call(cmd, shell=True)
