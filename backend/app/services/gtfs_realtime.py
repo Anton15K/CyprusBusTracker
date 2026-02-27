@@ -153,20 +153,41 @@ class GTFSRealtimeParser:
             for stu in trip_update.stop_time_update:
                 stop_time_updates.append((trip_id, stu))
 
-        await self._batch_update_stop_times(stop_time_updates)
-        await self.session.commit()
+        try:
+            await self._batch_update_stop_times(stop_time_updates)
+            await self.session.commit()
+        except Exception as exc:
+            logger.error("Error updating stop times, rolling back: %s", exc)
+            await self.session.rollback()
 
     async def _batch_update_stop_times(self, stop_time_updates: list) -> None:
         if not stop_time_updates:
             return
 
         trip_ids = list({trip_id for trip_id, _ in stop_time_updates})
-        existing_by_stop: dict = {}
-        existing_by_seq: dict = {}
         chunk_size = 500
 
+        # Only process trip IDs that exist in the trips table to avoid FK violations
+        valid_trip_ids: set[int] = set()
         for i in range(0, len(trip_ids), chunk_size):
             chunk = trip_ids[i : i + chunk_size]
+            stmt = select(Trip.trip_id).where(Trip.trip_id.in_(chunk))
+            result = await self.session.execute(stmt)
+            valid_trip_ids.update(result.scalars())
+
+        skipped = len(trip_ids) - len(valid_trip_ids)
+        if skipped:
+            logger.debug("Skipping %d trip_ids not found in trips table", skipped)
+
+        stop_time_updates = [(t, s) for t, s in stop_time_updates if t in valid_trip_ids]
+        if not stop_time_updates:
+            return
+
+        existing_by_stop: dict = {}
+        existing_by_seq: dict = {}
+
+        for i in range(0, len(valid_trip_ids), chunk_size):
+            chunk = list(valid_trip_ids)[i : i + chunk_size]
             stmt = select(Stop_Time).where(Stop_Time.trip_id.in_(chunk))
             result = await self.session.execute(stmt)
             for st in result.scalars():

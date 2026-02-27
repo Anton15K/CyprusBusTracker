@@ -29,6 +29,7 @@ async def lifespan(app: FastAPI):
         gtfs_osm_folder=settings.gtfs_osm_folder,
         otp_jar=settings.otp_jar,
         zip_urls=ZIP_URLS,
+        manage_otp=settings.manage_otp,
     )
 
     await reloader.run_all()

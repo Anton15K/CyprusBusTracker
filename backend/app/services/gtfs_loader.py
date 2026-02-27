@@ -57,10 +57,14 @@ class BaseOperations:
         self.source_folder = source_folder
 
     def clear_folder(self, folder_path: str) -> None:
-        if os.path.exists(folder_path):
-            shutil.rmtree(folder_path)
-        os.makedirs(folder_path)
-        logger.info("Cleared and recreated folder: %s", folder_path)
+        os.makedirs(folder_path, exist_ok=True)
+        for item in os.listdir(folder_path):
+            item_path = os.path.join(folder_path, item)
+            if os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+            else:
+                os.remove(item_path)
+        logger.info("Cleared folder: %s", folder_path)
 
     def unzip_files(self, folder: str) -> None:
         for item in os.listdir(folder):
@@ -165,6 +169,16 @@ class Updater(BaseOperations):
             with open(filename, "wb") as f:
                 f.write(response.content)
 
+    def prepare_data(self) -> None:
+        """Download + unzip + build merged GTFS zip without running OTP graph build."""
+        self.clear_folder(self.source_folder)
+        self.download_files()
+        self.unzip_files(self.source_folder)
+        self.graph_builder.delete_zip_files()
+        self.graph_builder.create_merged_gtfs_in_target_folder()
+        self.graph_builder.copy_osm_data()
+        logger.info("GTFS data prepared (OTP graph build skipped)")
+
     def run_all(self) -> None:
         self.clear_folder(self.source_folder)
         self.download_files()
@@ -182,7 +196,9 @@ class GTFSDataReloader:
         gtfs_osm_folder: str,
         otp_jar: str,
         zip_urls: list[str],
+        manage_otp: bool = True,
     ):
+        self.manage_otp = manage_otp
         self.updater = Updater(
             source_folder=gtfs_source_folder,
             target_folder=gtfs_target_folder,
@@ -194,12 +210,15 @@ class GTFSDataReloader:
 
     def update_data_files(self) -> None:
         logger.info("Starting GTFS file update")
-        self.updater.run_all()
+        if self.manage_otp:
+            self.updater.run_all()
+        else:
+            self.updater.prepare_data()
 
     async def reload_database(self) -> None:
         logger.info("Starting database reset and insertion")
         await self.db_reset.reset_and_insert_all()
 
     async def run_all(self) -> None:
-        # self.update_data_files()  # uncomment to also re-download GTFS
+        self.update_data_files()
         await self.reload_database()
