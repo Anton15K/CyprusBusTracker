@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
 
-import httpx
 import polyline
+import requests
 
 from app.core.config import CYPRUS_TZ
 
@@ -20,7 +20,7 @@ def _decode_leg_geometry(leg: dict) -> list:
         return []
 
 
-async def query_graphql(
+def query_graphql(
     query: str,
     coord_from: tuple[float, float],
     coord_to: tuple[float, float],
@@ -35,10 +35,7 @@ async def query_graphql(
         lon_to=coord_to[1],
         time_value=time_value,
     )
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            otp_url, headers=headers, json={"query": formatted}, timeout=30
-        )
+    response = requests.post(otp_url, headers=headers, json={"query": formatted}, timeout=30)
     response.raise_for_status()
     data = response.json()
     edges = sorted(
