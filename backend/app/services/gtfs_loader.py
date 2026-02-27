@@ -20,8 +20,8 @@ class DatabaseReset:
     def __init__(self, db_manager: DatabaseManager, gtfs_parent_folder: str):
         self.db_manager = db_manager
         self.gtfs_parent_folder = gtfs_parent_folder
-        # SQL files live next to this file's package root (backend/sql/)
-        self._sql_dir = Path(__file__).resolve().parents[3] / "sql"
+        # SQL files live at backend/sql/ (two levels up from services/ → app/ → backend/)
+        self._sql_dir = Path(__file__).resolve().parents[2] / "sql"
 
     async def reset_and_insert(self, gtfs_folder: str) -> None:
         logger.info("Inserting GTFS data for folder %s", gtfs_folder)
