@@ -36,7 +36,7 @@ async def make_route_endpoint(request: Request):
         ) from exc
 
     try:
-        result = query_graphql(
+        result = await query_graphql(
             GRAPHQL_QUERY,
             coord_from=(origin_lat, origin_lng),
             coord_to=(dest_lat, dest_lng),
