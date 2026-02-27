@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
@@ -39,9 +37,9 @@ services:
       - ./osm_data:/app/osm_data:ro
 
   otp:
-    image: docker.io/opentripplanner/opentripplanner:2.7.0_2024-12-07T12-02
+    image: opentripplanner/opentripplanner:latest
     restart: unless-stopped
-    command: ["--load", "--serve"]
+    command: ["--build", "--save", "--serve"]
     environment:
       JAVA_TOOL_OPTIONS: "-Xmx2g"
     ports:
