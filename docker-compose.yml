@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cyprusbus
+      POSTGRES_PASSWORD: cyprusbus
+      POSTGRES_DB: cyprusbus
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyprusbus -d cyprusbus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql+asyncpg://cyprusbus:cyprusbus@db:5432/cyprusbus
+      OTP_URL: http://otp:8080/otp/gtfs/v1
+      MANAGE_OTP: "false"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./frontend:/app/frontend:ro
+      - ./google_transit_files:/app/google_transit_files
+      - ./otp_data:/app/otp_data
+      - ./osm_data:/app/osm_data:ro
+
+  otp:
+    image: opentripplanner/opentripplanner:latest
+    restart: unless-stopped
+    command: ["--build", "--save", "--serve"]
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xmx2g"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./otp_data:/var/opentripplanner
+
+volumes:
+  postgres_data:
