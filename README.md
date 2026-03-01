@@ -18,9 +18,8 @@ Current Cyprus bus tracking apps have several limitations:
 
 1. **Basic UI** - Map-centric interfaces that require constant monitoring
 2. **Passive Experience** - Users must actively check the app; no proactive alerts
-3. **No Personalization** - Can't save favorite stops or routes
-4. **Limited Trip Planning** - No "notify me when bus X reaches stop Y" functionality
-5. **Poor Mobile Experience** - Not optimized for on-the-go usage
+3. **Limited Trip Planning** - No "notify me when bus X reaches stop Y" functionality
+4. **Poor Mobile Experience** - Not optimized for on-the-go usage
 
 ### Solution
 
@@ -29,7 +28,6 @@ CyprusBusTracker addresses these issues by:
 - Implementing a modern, mobile-first UI with intuitive navigation
 - Adding push notifications for bus arrivals at user-selected stops
 - Providing ETA predictions and "next bus" information
-- Allowing users to save favorite stops and routes
 - Offering a cleaner, more accessible interface
 
 ---
@@ -80,15 +78,7 @@ System monitors: Real-time bus positions
 Trigger:        When conditions met → Push notification
 ```
 
-### 3. Favorites & Personalization
-
-- Save favorite bus stops
-- Save favorite routes
-- Quick access dashboard on home screen
-- Commute history and patterns
-- Customizable notification preferences
-
-### 4. Stop-Centric View (New)
+### 3. Stop-Centric View (New)
 
 Instead of only map view, offer a stop-focused interface:
 
@@ -97,7 +87,7 @@ Instead of only map view, offer a stop-focused interface:
 - See real-time arrivals for all buses at that stop
 - One-tap "Notify me" for any arriving bus
 
-### 5. Trip Planner
+### 4. Trip Planner
 
 - Point A to Point B routing
 - Multi-leg journey support
@@ -123,7 +113,6 @@ Instead of only map view, offer a stop-focused interface:
 |---------------|-------------------|
 | Map dominates entire screen | Hybrid view with cards + mini-map |
 | Hard to find specific stops | Prominent search with autocomplete |
-| No quick access to favorites | Home screen with favorite stops |
 | Dense information on bus popups | Clean, hierarchical info display |
 | Small touch targets | Large, thumb-friendly buttons |
 | Hard to navigate map | Better map with view from sputnics |
@@ -182,10 +171,9 @@ Instead of only map view, offer a stop-focused interface:
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                      Frontend                           │
-│  ┌─────────────┐  ┌─────────────┐                       │
-│  │   React /   │  │   some      │                       │
-│  │ React Native│  │   Maps      │                       │
-│  └─────────────┘  └─────────────┘                       │
+│  ┌──────────────────────────────────────┐               │
+│  │  Jinja2 Templates + Leaflet.js       │               │
+│  └──────────────────────────────────────┘               │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
                           │
@@ -194,7 +182,7 @@ Instead of only map view, offer a stop-focused interface:
 │                      Backend                            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
 │  │   Python    │  │   Redis     │  │  PostgreSQL │      │
-│  │   FastAPI   │  │   Cache     │  │   + PostGIS │      │
+│  │   FastAPI   │  │   Cache     │  │             │      │
 │  └─────────────┘  └─────────────┘  └─────────────┘      │
 │                                                         │
 │  ┌─────────────┐  ┌─────────────┐                       │
@@ -216,30 +204,27 @@ Instead of only map view, offer a stop-focused interface:
 
 | Layer | Technology | Rationale |
 |-------|------------|-----------|
-| **Frontend Web** | React + TypeScript | Component-based, type-safe |
-| **Frontend Mobile** | React Native or PWA | Cross-platform, shared codebase |
-| **Maps** | Haven't chosen yet |
-| **Backend** | Python + FastAPI | Fast, great for real-time |
-| **Database** | PostgreSQL + PostGIS | Spatial queries for geolocation |
-| **Cache** | Redis | Fast GTFS-RT data caching |
-| **Push Notifications** | Telegram Bot API + Firebase FCM | Reliable, widely supported |
-| **Hosting** | Vercel/Railway + Supabase | Cost-effective, scalable |
+| **Frontend** | Jinja2 + Leaflet.js | Server-rendered, no build step |
+| **Backend** | Python + FastAPI | Fast, async, great for real-time |
+| **Database** | PostgreSQL | Lat/lon stored as floats |
+| **Cache** | Redis | GTFS-RT response caching under load |
+| **Push Notifications** | Telegram Bot API | Widely used, no app install required |
 
 ### API Endpoints
 
 ```
-GET  /api/vehicles              # All active buses
-GET  /api/vehicles/:id          # Single bus details
-GET  /api/stops                 # All stops
-GET  /api/stops/:id             # Stop details with arrivals
-GET  /api/stops/:id/arrivals    # Real-time arrivals at stop
-GET  /api/routes                # All routes
-GET  /api/routes/:id            # Route details with shape
-GET  /api/routes/:id/vehicles   # Buses on specific route
-POST /api/alerts                # Create user alert
-GET  /api/alerts                # Get user's alerts
-DEL  /api/alerts/:id            # Delete alert
-GET  /api/trip-plan             # Calculate route A to B
+# Implemented
+GET  /api/get_buses                        # All active buses (real-time)
+GET  /buses/get_stops_on_route/{route_id}  # Stops on a route
+GET  /api/get_shape/{route_id}             # Route geometry
+GET  /stops/{stop_id}                      # Arrivals at a stop (next hour)
+GET  /stops/routes_stopping_at/{stop_id}   # Routes serving a stop
+POST /api/make_route                       # Trip plan A → B via OTP
+
+# Planned (notifications)
+POST /api/alerts                           # Create alert (stop + route)
+GET  /api/alerts                           # List active alerts
+DEL  /api/alerts/:id                       # Delete alert
 ```
 
 ### Notification System Architecture
@@ -267,8 +252,8 @@ GET  /api/trip-plan             # Calculate route A to B
                             │
                             ▼
                      ┌──────────────┐
-                     │   Firebase   │
-                     │   FCM Push   │
+                     │   Telegram   │
+                     │   Bot        │
                      └──────────────┘
 ```
 
@@ -280,12 +265,12 @@ GET  /api/trip-plan             # Calculate route A to B
 
 **Goal:** Working app with core tracking and basic notifications
 
-- [ ] Project setup and CI/CD
-- [ ] GTFS/GTFS-RT data ingestion
-- [ ] Basic map view with live buses
-- [ ] Stop search and details
-- [ ] Simple "notify when bus arrives" feature
-- [ ] PWA with offline support for static data
+- [x] Project setup and CI/CD
+- [x] GTFS/GTFS-RT data ingestion
+- [x] Basic map view with live buses
+- [x] Stop search and details
+- [ ] Simple "notify when bus arrives" feature (Telegram)
+- [ ] PWA manifest for mobile
 
 **Deliverable:** Usable web app with real-time tracking
 
@@ -293,18 +278,70 @@ GET  /api/trip-plan             # Calculate route A to B
 
 **Goal:** Full notification system and personalization
 
-- [ ] User accounts (optional, for cross-device sync)
-- [ ] Favorites system (stops, routes)
 - [ ] Advanced alerts (approaching, ETA-based)
-- [ ] Home screen dashboard
-- [ ] Trip planner basic version
+- [x] Trip planner via OpenTripPlanner
 - [ ] Service alerts integration
+- [ ] Redis caching for GTFS-RT responses
 
 **Deliverable:** Feature-complete application
 
 ---
 
 
+
+## Development
+
+All commands run from the `backend/` directory.
+
+### Setup
+
+```bash
+uv sync --frozen --group dev
+```
+
+Requires PostgreSQL running at `localhost:5432`. Copy `.env.example` to `.env` and adjust as needed.
+
+### Run locally
+
+```bash
+uv run python -m app.main
+```
+
+On startup the app downloads GTFS data, builds the OTP graph (requires Java + `otp-shaded-2.7.0.jar`), inserts into PostgreSQL, then starts serving. Set `MANAGE_OTP=false` to skip OTP graph build.
+
+### Full stack via Docker
+
+```bash
+docker compose up   # from repo root
+```
+
+Starts PostgreSQL, the FastAPI backend, and OpenTripPlanner as separate containers.
+
+### Lint
+
+```bash
+uv run ruff check app/ tests/
+uv run ruff format --check app/ tests/
+
+# Auto-fix
+uv run ruff check --fix app/ tests/
+uv run ruff format app/ tests/
+```
+
+### Test
+
+```bash
+# All tests
+uv run pytest tests/ -v
+
+# Single file or function
+uv run pytest tests/test_api/buses.py -v
+uv run pytest tests/test_api/buses.py::test_get_buses -v
+```
+
+Tests mock all external dependencies (DB, GTFS-RT feed, OTP). No real services are needed to run them.
+
+---
 
 ## License
 

@@ -40,3 +40,4 @@ google_transit_files/
 otp_data/*
 !otp_data/router-config.json
 osm_data/
+/CLAUDE.md
