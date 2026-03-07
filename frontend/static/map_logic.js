@@ -40,7 +40,7 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     });
 
-// Satellite (Esri World Imagery)
+    // Satellite (Esri World Imagery)
     const satellite = L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {
@@ -49,7 +49,7 @@ function initMap() {
         }
     );
 
-// Labels overlay (Esri Reference)
+    // Labels overlay (Esri Reference)
     const satelliteLabels = L.tileLayer(
         'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
         {
@@ -68,7 +68,7 @@ function initMap() {
             "Satellite": satelliteWithLabels,
             "Street": street
         },
-        null,
+        {},
         {position: "topright"}
     ).addTo(map);
 
