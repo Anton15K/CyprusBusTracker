@@ -2,11 +2,12 @@
 
 ## Overview
 
-Four new tables are added to support the Telegram bot. No existing tables are modified.
+Five new tables are added to support the Telegram bot. No existing tables are modified.
 
 ```
 telegram_users
     ├── telegram_otp          (OTP verification for registration)
+    ├── pending_web_sessions  (short-lived tokens for browser↔Telegram linking)
     └── notification_subscriptions
             └── notification_log
 ```
@@ -42,6 +43,19 @@ Stores OTP codes issued during registration. Kept as a separate table so multipl
 | `expires_at` | TIMESTAMP | Typically `created_at + 5 minutes` |
 | `verified_at` | TIMESTAMP | Null until user submits the correct code |
 | `is_used` | BOOLEAN | Prevents reuse of a valid but already-consumed code |
+
+---
+
+### `pending_web_sessions`
+
+Stores short-lived tokens used to link a browser session to a Telegram account. The browser generates a subscription request; the user proves ownership of their Telegram account by forwarding the token to the bot; the bot claims it; the backend issues a JWT.
+
+| Column | Type | Notes |
+|---|---|---|
+| `token` | VARCHAR | PK — cryptographically random string shown to the user |
+| `chat_id` | BIGINT | FK → `telegram_users`, NULL until the bot claims the token |
+| `created_at` | TIMESTAMP | |
+| `expires_at` | TIMESTAMP | e.g. `created_at + 10 minutes` |
 
 ---
 
@@ -117,6 +131,45 @@ Next bus of same route → different trip_id → new log entry → notifies agai
 Same bus, same day    → same trip_id + service_date → already logged → skipped
 Same bus, next day    → new service_date → notifies again
 ```
+
+---
+
+## Web Linking Flow (Browser → Telegram → JWT)
+
+The browser has no intrinsic knowledge of a visitor's Telegram identity. Storing a raw `@username` or `chat_id` in a cookie would be insecure — anyone could spoof it. Instead, the Telegram bot acts as the **verification authority**: a session is only trusted after the user proves they own the Telegram account by interacting with the bot.
+
+```
+1. User clicks "Subscribe to notifications" in the web app
+        → POST /api/auth/link-request
+        → Backend generates a cryptographically random token (e.g. "A3F9X2")
+        → INSERT into pending_web_sessions (token, chat_id=NULL, expires_at=now+10min)
+        → Returns token to browser
+
+2. Web app shows: "Send /link A3F9X2 to @CyprusBusBot on Telegram"
+        → Browser polls GET /api/auth/link-status?token=A3F9X2 every 2 seconds
+
+3. User sends "/link A3F9X2" in Telegram
+        → Bot looks up token in pending_web_sessions
+        → Validates: chat_id IS NULL AND expires_at > now
+        → UPDATE pending_web_sessions SET chat_id = <user's chat_id> WHERE token = ?
+        → Bot replies: "Linked! You can now manage subscriptions on the web."
+
+4. Browser poll receives chat_id from /api/auth/link-status
+        → Backend signs a JWT: { "chat_id": 123456789, "exp": now+30days }
+        → Returns JWT to browser; browser stores it as an httpOnly cookie
+
+5. All subsequent subscription API calls include the JWT cookie
+        → Backend verifies signature + expiry, extracts chat_id
+        → Uses chat_id to INSERT / UPDATE notification_subscriptions
+```
+
+### JWT Details
+
+- **Algorithm:** HS256 (shared secret in `Settings`)
+- **Payload:** `{ "chat_id": <int>, "exp": <unix timestamp> }`
+- **Storage:** `httpOnly`, `Secure`, `SameSite=Strict` cookie — never exposed to JavaScript
+- **No server-side session table needed** — the JWT is self-contained; `chat_id` is extracted on every request by verifying the signature
+- **Expiry:** 30 days; user must re-link if expired
 
 ---
 
