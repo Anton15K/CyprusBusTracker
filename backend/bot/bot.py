@@ -1,8 +1,10 @@
+import os
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import asyncio
 
-TOKEN = "8715585696:AAFEJgE6x8rs9DCEOpsFhLka23laRrsSYqA"
+TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 NAME = "cyprus_bus_tracker_bot"
 
 class Bot:
