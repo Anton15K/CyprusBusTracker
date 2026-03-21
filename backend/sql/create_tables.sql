@@ -56,3 +56,61 @@ CREATE TABLE stop_times (
         FOREIGN KEY(trip_id) REFERENCES trips (trip_id) ON DELETE CASCADE,
         FOREIGN KEY(stop_id) REFERENCES stops (stop_id)
 );
+
+CREATE TABLE telegram_users (
+        chat_id BIGINT NOT NULL,
+        username VARCHAR,
+        first_name VARCHAR,
+        is_active BOOLEAN NOT NULL,
+        created_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (chat_id),
+        UNIQUE (chat_id)
+);
+
+CREATE TABLE telegram_otp (
+        id SERIAL NOT NULL,
+        chat_id BIGINT NOT NULL,
+        otp_code VARCHAR NOT NULL,
+        created_at TIMESTAMP NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        verified_at TIMESTAMP,
+        is_used BOOLEAN NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE (id),
+        FOREIGN KEY (chat_id) REFERENCES telegram_users (chat_id)
+);
+
+CREATE TABLE pending_web_sessions (
+        token VARCHAR NOT NULL,
+        chat_id BIGINT,
+        created_at TIMESTAMP NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (token),
+        UNIQUE (token),
+        FOREIGN KEY (chat_id) REFERENCES telegram_users (chat_id)
+);
+
+CREATE TABLE notification_subscriptions (
+        id SERIAL NOT NULL,
+        chat_id BIGINT NOT NULL,
+        stop_id VARCHAR NOT NULL,
+        route_id VARCHAR NOT NULL,
+        notify_minutes_before INTEGER NOT NULL,
+        is_active BOOLEAN NOT NULL,
+        created_at TIMESTAMP NOT NULL,
+        FOREIGN KEY (chat_id) REFERENCES telegram_users (chat_id),
+        PRIMARY KEY (id),
+        UNIQUE (id)
+);
+
+CREATE TABLE notification_log (
+        id SERIAL NOT NULL,
+        subscription_id INTEGER NOT NULL,
+        trip_id VARCHAR NOT NULL,
+        service_date DATE NOT NULL,
+        sent_at TIMESTAMP,
+        status VARCHAR,
+        PRIMARY KEY (id),
+        UNIQUE (id),
+        UNIQUE (subscription_id, trip_id, service_date)
+);
