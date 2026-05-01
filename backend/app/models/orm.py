@@ -1,6 +1,8 @@
-from typing import List
+from datetime import datetime
 
-from sqlalchemy import Float, ForeignKey, Integer, String, DateTime, Boolean, Date, BigInteger, UniqueConstraint
+from typing import List
+from sqlalchemy import (BigInteger, Boolean, Date, DateTime, Float, ForeignKey, Integer, String,
+                        UniqueConstraint)
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 
@@ -111,7 +113,7 @@ class Telegram_User(Base):
     username: Mapped[str] = mapped_column(String, nullable=True)
     first_name: Mapped[str] = mapped_column(String, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    created_at: Mapped[int] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     otps: Mapped[list["Telegram_OTP"]] = relationship(back_populates="chat")
     pending_sessions: Mapped[list["Pending_Web_Session"]] = relationship(back_populates="chat")
@@ -127,12 +129,14 @@ class Telegram_User(Base):
 class Telegram_OTP(Base):
     __tablename__ = "telegram_otp"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
+                                    autoincrement=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
+                                         nullable=False)
     otp_code: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[int] = mapped_column(DateTime, nullable=False)
-    expires_at: Mapped[int] = mapped_column(DateTime, nullable=False)
-    verified_at: Mapped[int] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    verified_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     is_used: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     chat: Mapped["Telegram_User"] = relationship(back_populates="otps")
@@ -140,16 +144,17 @@ class Telegram_OTP(Base):
     def __repr__(self) -> str:
         return (
             f"Telegram_OTP(id={self.id}, chat_id={self.chat_id}, otp_code={self.otp_code}, "
-            f"created_at={self.created_at}, expires_at={self.expires_at}, verified_at={self.verified_at}, "
-            f"is_used={self.is_used})"
+            f"created_at={self.created_at}, expires_at={self.expires_at}, "
+            f"verified_at={self.verified_at}, is_used={self.is_used})"
         )
 
 
 class Pending_Web_Session(Base):
     token: Mapped[str] = mapped_column(String, nullable=False, primary_key=True, unique=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"), nullable=True)
-    created_at: Mapped[int] = mapped_column(DateTime, nullable=False)
-    expires_at: Mapped[int] = mapped_column(DateTime, nullable=False)
+    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
+                                         nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     chat: Mapped["Telegram_User"] = relationship(back_populates="pending_sessions")
 
@@ -161,21 +166,24 @@ class Pending_Web_Session(Base):
 
 
 class Notification_Subscription(Base):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
+                                    autoincrement=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
+                                         nullable=False)
     stop_id: Mapped[str] = mapped_column(String, nullable=False)
     route_id: Mapped[str] = mapped_column(String, nullable=False)
     notify_minutes_before: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    created_at: Mapped[int] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     chat: Mapped["Telegram_User"] = relationship(back_populates="subscriptions")
     logs: Mapped[list["Notification_Log"]] = relationship(back_populates="subscription")
 
     def __repr__(self) -> str:
         return (
-            f"Notification_Subscription(id={self.id}, chat_id={self.chat_id}, stop_id={self.stop_id}, "
-            f"route_id={self.route_id}, notify_minutes_before={self.notify_minutes_before}, "
+            f"Notification_Subscription(id={self.id}, chat_id={self.chat_id}, "
+            f"stop_id={self.stop_id}, route_id={self.route_id}, "
+            f"notify_minutes_before={self.notify_minutes_before}, "
             f"is_active={self.is_active}, created_at={self.created_at})"
         )
 
@@ -183,11 +191,14 @@ class Notification_Subscription(Base):
 class Notification_Log(Base):
     __tablename__ = "notification_log"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
-    subscription_id: Mapped[int] = mapped_column(Integer, ForeignKey("notification_subscriptions.id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
+                                    autoincrement=True)
+    subscription_id: Mapped[int] = mapped_column(Integer,
+                                                 ForeignKey("notification_subscriptions.id"),
+                                                 nullable=False)
     trip_id: Mapped[str] = mapped_column(String, nullable=False)
     service_date: Mapped[int] = mapped_column(Date, nullable=False)
-    sent_at: Mapped[int] = mapped_column(DateTime, nullable=True)
+    sent_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=True)
 
     subscription: Mapped["Notification_Subscription"] = relationship(back_populates="logs")
@@ -195,7 +206,7 @@ class Notification_Log(Base):
 
     def __repr__(self) -> str:
         return (
-            f"Notification_Log(id={self.id}, subscription_id={self.subscription_id}, trip_id={self.trip_id}, "
-            f"service_date={self.service_date}, sent_at={self.sent_at}, "
+            f"Notification_Log(id={self.id}, subscription_id={self.subscription_id}, "
+            f"trip_id={self.trip_id}, service_date={self.service_date}, sent_at={self.sent_at}, "
             f"status={self.status})"
         )
