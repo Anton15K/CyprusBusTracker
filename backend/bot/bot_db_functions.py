@@ -84,7 +84,7 @@ async def get_codes(session: AsyncSession, chat_id: int) -> list:
     ]
 
 
-async def check_code(session: AsyncSession, username: str, code_entered: str) -> bool:
+async def check_code(session: AsyncSession, username: str, code_entered: str) -> int | None:
     current_time = datetime.now()
     stmt = (
         select(Telegram_OTP)
@@ -99,10 +99,10 @@ async def check_code(session: AsyncSession, username: str, code_entered: str) ->
     otp = result.scalar_one_or_none()
     
     if not otp:
-        return False
+        return None
         
     await approve_code(session, otp.id, otp.chat_id)
-    return True
+    return otp.chat_id
 
 
 async def approve_code(session: AsyncSession, code_id: int, chat_id: int):

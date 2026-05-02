@@ -26,6 +26,30 @@ document.getElementById('show-location-btn').addEventListener('click', function(
   showMyLocation();
 });
 
+// Global linking status
+export let isTelegramLinked = false;
+export let telegramUsername = null;
+
+export async function checkLinkStatus() {
+    try {
+        const response = await fetch('/api/telegram/me');
+        if (response.ok) {
+            const data = await response.json();
+            isTelegramLinked = true;
+            telegramUsername = data.username;
+            document.getElementById('telegram-link-btn').innerText = `✅ Linked as ${telegramUsername}`;
+            document.getElementById('telegram-link-btn').classList.add('linked');
+        } else {
+            isTelegramLinked = false;
+            telegramUsername = null;
+            document.getElementById('telegram-link-btn').innerText = '🔗 Link Telegram';
+            document.getElementById('telegram-link-btn').classList.remove('linked');
+        }
+    } catch (error) {
+        console.error('Error checking link status:', error);
+    }
+}
+
 // Telegram Modal Logic
 const telegramModal = document.getElementById('telegram-modal');
 const telegramBtn = document.getElementById('telegram-link-btn');
@@ -63,8 +87,7 @@ verifyBtn.onclick = async () => {
         if (response.ok) {
             verifyStatus.innerText = 'Successfully linked!';
             verifyStatus.style.color = 'green';
-            localStorage.setItem('telegram_linked', 'true');
-            localStorage.setItem('telegram_username', username);
+            await checkLinkStatus();
             setTimeout(() => telegramModal.style.display = 'none', 1500);
         } else {
             verifyStatus.innerText = data.detail || 'Verification failed.';
@@ -76,7 +99,8 @@ verifyBtn.onclick = async () => {
     }
 }
 
-// Initial marker updates
+// Initial state checks and markers
+checkLinkStatus();
 createStopMarkers();  
 fetch('/api/get_buses')
   .then(response => response.json())

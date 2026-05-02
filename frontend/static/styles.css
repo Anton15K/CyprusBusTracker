@@ -189,6 +189,14 @@ html, body {
     background-color: #006699;
 }
 
+#telegram-link-btn.linked {
+    background-color: #4CAF50;
+}
+
+#telegram-link-btn.linked:hover {
+    background-color: #45a049;
+}
+
 /* Modal Styles */
 .modal {
     display: none;
