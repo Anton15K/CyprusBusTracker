@@ -5,11 +5,11 @@ var userLocationMarker; // Start with an empty marke
 export var busMarkers = []; // Store all bus markers
 export var stopMarkers = []; // Store all stop markers
 export var currentBusPath = null; // Reference to the current bus path
-export const busMarkersMap = {}; 
+export const busMarkersMap = {};
+
 export function setCurrentBusPath(path) {
     currentBusPath = path;
 }
-
 
 
 export var BusStopIcon = L.icon({
@@ -80,6 +80,7 @@ function initMap() {
     // Restore the map state once it's fully initialized
     restoreMapState();
 }
+
 function saveMapState() {
     var center = map.getCenter();
     var zoom = map.getZoom();
@@ -121,15 +122,15 @@ function showMyLocation() {
             // Update the marker's position to the user's location
             if (userLocationMarker) {
                 userLocationMarker.setLatLng([lat, lon])
-                    // .bindPopup("You are here")
-                    // .openPopup();
+                // .bindPopup("You are here")
+                // .openPopup();
             } else {
                 // Create a new marker with the custom icon
                 userLocationMarker = L.marker([lat, lon], {
                     icon: userLocationIcon
                 }).addTo(map)
-                    // .bindPopup("You are here")
-                    // .openPopup();
+                // .bindPopup("You are here")
+                // .openPopup();
             }
         }, function (error) {
             alert("Geolocation failed: " + error.message);
@@ -138,7 +139,8 @@ function showMyLocation() {
         alert("Geolocation is not supported by this browser.");
     }
 }
-export { saveMapState, restoreMapState, initMap, showMyLocation };
+
+export {saveMapState, restoreMapState, initMap, showMyLocation};
 
 export const BusIcon = (bearing) =>
     L.divIcon({
@@ -146,6 +148,6 @@ export const BusIcon = (bearing) =>
         html: `<div class="bus-icon-inner" style="transform: rotate(${bearing}deg);">
                     <img src="/static/images/bus-icon.png" width="24" height="24">
                </div>`,
-        iconSize: [24, 24], 
+        iconSize: [24, 24],
         iconAnchor: [12, 12],
     });
