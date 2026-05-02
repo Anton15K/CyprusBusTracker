@@ -8,10 +8,10 @@ from app.core.config import CYPRUS_TZ, ZIP_URLS, settings
 from app.db.crud import get_all_stops
 from app.db.session import db_manager
 from app.services.gtfs_loader import GTFSDataReloader
-from bot.bot import Bot
 from app.services.notifications import check_and_send_notifications
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from bot.bot import Bot
 from fastapi import Depends, FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
         telegram_bot = Bot(
             token=settings.telegram_bot_token,
             name=settings.telegram_bot_name,
-            session_creating_method=db_manager.session_factory
+            session_creating_method=db_manager.session_factory,
         )
         await telegram_bot.start()
         app.state.telegram_bot = telegram_bot

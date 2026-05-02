@@ -35,7 +35,7 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["backend/tests"]
-pythonpath = ["."]
+pythonpath = [".", "backend"]
 
 [tool.ruff]
 line-length = 100

@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from random import randint
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -127,7 +127,8 @@ class Bot:
         help_text = (
             "Available commands:\n"
             "/start - Get your 4-digit verification code to link your account on the web.\n"
-            "/subscribe <stop_id> <route_id> [minutes] - Subscribe to notifications (default: 10 mins before).\n"
+            "/subscribe <stop_id> <route_id> [minutes] - Subscribe to notifications "
+            "(default: 10 mins before).\n"
             "/subscriptions - List all your active subscriptions.\n"
             "/unsubscribe <id> - Remove a subscription by its ID.\n"
             "/help - Show this help message."
@@ -138,11 +139,11 @@ class Bot:
         if len(context.args) < 2:
             await update.message.reply_text("Usage: /subscribe <stop_id> <route_id> [minutes]")
             return
-        
+
         stop_id = context.args[0]
         route_id = context.args[1]
         minutes = 10
-        
+
         if len(context.args) >= 3:
             try:
                 minutes = int(context.args[2])
@@ -154,20 +155,35 @@ class Bot:
                 return
 
         chat_id = update.effective_chat.id
-        
+
         async with self.__create_session() as session:
             try:
                 if await get_user_info(session, chat_id) == {}:
-                    await add_user(session, chat_id, update.effective_user.username, update.effective_user.first_name)
-                
+                    await add_user(
+                        session,
+                        chat_id,
+                        update.effective_user.username,
+                        update.effective_user.first_name,
+                    )
+
                 await add_subscription(session, chat_id, stop_id, route_id, minutes)
                 await session.commit()
-                await update.message.reply_text(f"Subscribed to route {route_id} at stop {stop_id} ({minutes} mins before).")
-                bot_logger.info(f"User {chat_id} subscribed to route {route_id} at stop {stop_id} with {minutes} mins")
+                await update.message.reply_text(
+                    f"Subscribed to route {route_id} at stop {stop_id} ({minutes} mins before)."
+                )
+                bot_logger.info(
+                    "User %s subscribed to route %s at stop %s with %s mins",
+                    chat_id,
+                    route_id,
+                    stop_id,
+                    minutes,
+                )
             except Exception as e:
                 bot_logger.error(f"Error in subscribe command: {e}")
                 await session.rollback()
-                await update.message.reply_text("Failed to subscribe. Please check stop_id and route_id.")
+                await update.message.reply_text(
+                    "Failed to subscribe. Please check stop_id and route_id."
+                )
 
     async def __subscriptions_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
@@ -176,7 +192,7 @@ class Bot:
             if not subs:
                 await update.message.reply_text("You have no active subscriptions.")
                 return
-            
+
             text = "Your subscriptions:\n"
             for sub in subs:
                 text += f"ID: {sub['id']} | Stop: {sub['stop_id']} | Route: {sub['route_id']}\n"
@@ -186,7 +202,7 @@ class Bot:
         if len(context.args) < 1:
             await update.message.reply_text("Usage: /unsubscribe <subscription_id>")
             return
-        
+
         try:
             sub_id = int(context.args[0])
         except ValueError:
@@ -202,7 +218,9 @@ class Bot:
                     await update.message.reply_text("Unsubscribed successfully.")
                     bot_logger.info(f"User {chat_id} unsubscribed from {sub_id}")
                 else:
-                    await update.message.reply_text("Subscription not found or does not belong to you.")
+                    await update.message.reply_text(
+                        "Subscription not found or does not belong to you."
+                    )
             except Exception as e:
                 bot_logger.error(f"Error in unsubscribe command: {e}")
                 await session.rollback()
@@ -251,14 +269,18 @@ class Bot:
     #         if not notification_already_sent(session, notification):
     #             notification["text"] = self.__make_text(notification)
     #             to_send.append(notification)
-    #     await asyncio.gather(*[self.send_message(notif["chat_id"], notif["text"]) for notif in to_send])
+    #     await asyncio.gather(
+    #         *[self.send_message(notif["chat_id"], notif["text"]) for notif in to_send]
+    #     )
     #     return True
 
     # async def __link_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
     #     if len(context.args) > 0:
     #         token = context.args[0]
     #         if check_token(token):
-    #             await update.message.reply_text("Linked! You can now manage subscriptions on the web.")
+    #             await update.message.reply_text(
+    #                 "Linked! You can now manage subscriptions on the web."
+    #             )
     #         else:
     #             await update.message.reply_text("Link failed (invalid token?), please try again")
     #     else:

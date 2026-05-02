@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta, timezone
+
 import jwt
-from fastapi import Request, HTTPException, status
 from app.core.config import settings
+from fastapi import HTTPException, Request, status
 
 COOKIE_NAME = "session_token"
+
 
 def create_access_token(chat_id: int) -> str:
     expires_delta = timedelta(days=settings.jwt_access_token_expire_days)
@@ -11,6 +13,7 @@ def create_access_token(chat_id: int) -> str:
     to_encode = {"chat_id": chat_id, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
     return encoded_jwt
+
 
 def get_current_chat_id(request: Request) -> int:
     token = request.cookies.get(COOKIE_NAME)
