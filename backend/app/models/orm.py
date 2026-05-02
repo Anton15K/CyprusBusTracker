@@ -1,9 +1,18 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import (BigInteger, Boolean, Date, DateTime, Float, ForeignKey, Integer, String,
-    UniqueConstraint)
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr, mapped_column, relationship)
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -129,10 +138,12 @@ class Telegram_User(Base):
 class Telegram_OTP(Base):
     __tablename__ = "telegram_otp"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
-                                    autoincrement=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
-                                         nullable=False)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, unique=True, nullable=False, autoincrement=True
+    )
+    chat_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("telegram_users.chat_id"), nullable=False
+    )
     otp_code: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
@@ -151,8 +162,9 @@ class Telegram_OTP(Base):
 
 class Pending_Web_Session(Base):
     token: Mapped[str] = mapped_column(String, nullable=False, primary_key=True, unique=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
-                                         nullable=True)
+    chat_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("telegram_users.chat_id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
@@ -166,10 +178,12 @@ class Pending_Web_Session(Base):
 
 
 class Notification_Subscription(Base):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
-                                    autoincrement=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("telegram_users.chat_id"),
-                                         nullable=False)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, unique=True, nullable=False, autoincrement=True
+    )
+    chat_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("telegram_users.chat_id"), nullable=False
+    )
     stop_id: Mapped[str] = mapped_column(String, nullable=False)
     route_id: Mapped[str] = mapped_column(String, nullable=False)
     notify_minutes_before: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -191,11 +205,12 @@ class Notification_Subscription(Base):
 class Notification_Log(Base):
     __tablename__ = "notification_log"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True, nullable=False,
-                                    autoincrement=True)
-    subscription_id: Mapped[int] = mapped_column(Integer,
-                                                 ForeignKey("notification_subscriptions.id"),
-                                                 nullable=False)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, unique=True, nullable=False, autoincrement=True
+    )
+    subscription_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("notification_subscriptions.id"), nullable=False
+    )
     trip_id: Mapped[str] = mapped_column(String, nullable=False)
     service_date: Mapped[int] = mapped_column(Date, nullable=False)
     sent_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)

@@ -35,10 +35,42 @@ function initMap() {
     map = L.map('map').setView([34.6786, 33.0413], 13); // Default view
 
     // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    });
+
+    // Satellite (Esri World Imagery)
+    const satellite = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+            maxZoom: 19,
+            attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        }
+    );
+
+    // Labels overlay (Esri Reference)
+    const satelliteLabels = L.tileLayer(
+        'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        {
+            maxZoom: 19,
+            attribution: 'Tiles © Esri'
+        }
+    );
+
+    // Default: satellite + labels
+    const satelliteWithLabels = L.layerGroup([satellite, satelliteLabels]);
+    satelliteWithLabels.addTo(map);
+
+    // Layer switcher
+    L.control.layers(
+        {
+            "Satellite": satelliteWithLabels,
+            "Street": street
+        },
+        {},
+        { position: "topright" }
+    ).addTo(map);
 
     // Initialize layers
     stopMarkersLayer = L.layerGroup().addTo(map); // Layer for bus stops

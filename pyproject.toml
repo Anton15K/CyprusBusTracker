@@ -19,6 +19,7 @@ dependencies = [
     "pandas>=2.2.0",
     "numpy>=2.0.0",
     "tzdata>=2024.1",
+    "python-telegram-bot>=21.0",
 ]
 
 [dependency-groups]
@@ -32,7 +33,7 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]
+testpaths = ["backend/tests"]
 pythonpath = ["."]
 
 [tool.ruff]
@@ -42,4 +43,4 @@ line-length = 100
 select = ["E", "F", "I"]
 
 [tool.ruff.lint.per-file-ignores]
-"app/services/gtfs_realtime_pb2.py" = ["E501"]
+"backend/app/services/gtfs_realtime_pb2.py" = ["E501"]

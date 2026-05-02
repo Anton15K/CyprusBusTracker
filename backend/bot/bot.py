@@ -1,15 +1,14 @@
 import asyncio
-from tokenize import group
+from datetime import timedelta
+from random import randint
 
 from sqlalchemy.exc import SQLAlchemyError
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from random import randint
-from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta
 
-from backend.bot.bot_db_functions import get_user_info
-from bot_db_functions import add_code, add_user
+from backend.app.core.config import settings
+from backend.bot.bot_db_functions import add_code, add_user, get_user_info
+
 
 class Bot:
     def __init__(self, token, name, logger, session_creating_method, tests=tuple()):
@@ -21,13 +20,15 @@ class Bot:
 
         self.__app = Application.builder().token(self.token).concurrent_updates(True).build()
         self.__app.add_handler(CommandHandler("start", self.__start_command))
-        #self.app.add_handler(CommandHandler("link", self.__link_command))
+        # self.app.add_handler(CommandHandler("link", self.__link_command))
         self.__app.add_handler(CommandHandler("test", self.__test_command))
-        self.__app.add_handler(MessageHandler(filters.ALL, self.__check_if_message_expected), group=1)
+        self.__app.add_handler(
+            MessageHandler(filters.ALL, self.__check_if_message_expected), group=1
+        )
 
         self.code_length = 4
         self.code_lifetime = timedelta(minutes=2)
-        self.__allowed_test_users = {"serge_327", "ak_15_ka", "antongalalu", "tratatatanka"}
+        self.__allowed_test_users = set(settings.allowed_test_users)
 
         self.send_message = self.__app.bot.send_message
 
@@ -56,7 +57,7 @@ class Bot:
 
     async def issue_otp(self, chat):
         async with self.__create_session() as session:
-            code = str(randint(1, 10**self.code_length-1)).zfill(self.code_length)
+            code = str(randint(1, 10**self.code_length - 1)).zfill(self.code_length)
             try:
                 if await get_user_info(session, chat.id) == {}:
                     await add_user(session, chat.id, chat.username, chat.first_name)
@@ -101,7 +102,9 @@ class Bot:
         if otp is not None:
             await update.message.reply_text(f"Do not tell anyone the code: {otp}", do_quote=True)
         else:
-            await update.message.reply_text("Failed to issue a code, please try again", do_quote=True)
+            await update.message.reply_text(
+                "Failed to issue a code, please try again", do_quote=True
+            )
 
     # @staticmethod
     # def __make_text(self, *args):

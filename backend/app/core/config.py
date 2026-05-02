@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     templates_dir: str = str(_REPO_ROOT / "frontend" / "templates")
     static_dir: str = str(_REPO_ROOT / "frontend" / "static")
 
+    # Telegram Bot
+    telegram_bot_token: str | None = None
+    allowed_test_users: list[str] = ["serge_327", "ak_15_ka", "antongalalu", "tratatatanka"]
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
