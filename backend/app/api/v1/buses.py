@@ -1,12 +1,11 @@
 import logging
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.config import settings
 from app.db.crud import get_shape_for_bus, stops_on_route, update_stop_times_and_get_buses
 from app.db.session import db_manager
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

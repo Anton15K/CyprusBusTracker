@@ -1,11 +1,10 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from app.api.v1 import buses, routing, stops, telegram
+from app.db.session import db_manager
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
-
-from app.api.v1 import buses, routing, stops
-from app.db.session import db_manager
 
 
 @pytest.fixture
@@ -20,6 +19,7 @@ async def client(mock_session):
     test_app.include_router(buses.router)
     test_app.include_router(stops.router)
     test_app.include_router(routing.router)
+    test_app.include_router(telegram.router)
 
     async def _override_session():
         yield mock_session

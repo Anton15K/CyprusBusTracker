@@ -2,14 +2,13 @@ import logging
 from datetime import datetime
 
 import requests
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.config import CYPRUS_TZ
 from app.models.orm import Added_Trip, Route, Stop_Time, Trip
 from app.services import gtfs_realtime_pb2
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cyprus_bus_tracker.gtfs_realtime")
 
 
 def _timestamp_to_cyprus_time(timestamp: int) -> datetime:

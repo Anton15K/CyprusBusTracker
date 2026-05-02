@@ -58,18 +58,18 @@ function initMap() {
         }
     );
 
-// Default: satellite + labels
+    // Default: satellite + labels
     const satelliteWithLabels = L.layerGroup([satellite, satelliteLabels]);
     satelliteWithLabels.addTo(map);
 
-// Layer switcher
+    // Layer switcher
     L.control.layers(
         {
             "Satellite": satelliteWithLabels,
             "Street": street
         },
         {},
-        {position: "topright"}
+        { position: "topright" }
     ).addTo(map);
 
     // Initialize layers

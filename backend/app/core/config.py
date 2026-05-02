@@ -34,7 +34,17 @@ class Settings(BaseSettings):
     templates_dir: str = str(_REPO_ROOT / "frontend" / "templates")
     static_dir: str = str(_REPO_ROOT / "frontend" / "static")
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    # Telegram Bot
+    telegram_bot_token: str | None = None
+    telegram_bot_name: str | None = None
+    allowed_test_users: list[str] = []
+
+    # JWT Authentication
+    jwt_secret: str = "dev_secret_key_change_me_in_production"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_days: int = 30
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
 
 settings = Settings()

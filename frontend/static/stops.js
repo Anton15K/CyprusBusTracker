@@ -1,4 +1,5 @@
 import { stopMarkersLayer, map, BusStopIcon, BusIcon, stopMarkers } from './map_logic.js'
+import { isTelegramLinked } from './main.js';
 export function updateStopMarkers() {
     const bounds = map.getBounds();
     const currentZoom = map.getZoom();
@@ -94,6 +95,7 @@ export function fetchStopDetails(stop_id) {
                             <span class="route-code">${route.route_short_name}</span>
                             <span class="route-desc">${route.route_long_name}</span>
                             <span class="route-time">${route.arrival_time} min</span>
+                            <button class="subscribe-btn" onclick="window.subscribeToRoute('${stop_id}', '${route.route_id}', '${route.route_short_name}')" title="Notify me">🔔</button>
                         </div>
                     `;
                 });
@@ -116,4 +118,44 @@ window.refreshStopDetails = function (stop_id) {
         container.innerHTML = `<b>Refreshing...</b>`;
     }
     fetchStopDetails(stop_id);
+};
+
+window.subscribeToRoute = async function(stop_id, route_id, route_name) {
+    if (!isTelegramLinked) {
+        alert("Please link your Telegram account first using the button in the bottom right corner.");
+        document.getElementById('telegram-modal').style.display = 'block';
+        return;
+    }
+
+    const minutes = prompt(`Subscribe to route ${route_name} at stop ${stop_id}.\nHow many minutes before arrival should we notify you?`, "10");
+    
+    if (minutes === null) return; // Cancelled
+    
+    const minsInt = parseInt(minutes);
+    if (isNaN(minsInt) || minsInt <= 0) {
+        alert("Please enter a valid number of minutes.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/telegram/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                stop_id: stop_id,
+                route_id: route_id,
+                minutes: minsInt
+            })
+        });
+
+        if (response.ok) {
+            alert(`Successfully subscribed! You will be notified ${minsInt} minutes before route ${route_name} arrives.`);
+        } else {
+            const data = await response.json();
+            alert(`Failed to subscribe: ${data.detail || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error subscribing:', error);
+        alert("Error connecting to server.");
+    }
 };

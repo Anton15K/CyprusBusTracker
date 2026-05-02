@@ -1,12 +1,11 @@
 from asyncio import current_task
 
+from app.core.config import settings
 from sqlalchemy.ext.asyncio import (
     async_scoped_session,
     async_sessionmaker,
     create_async_engine,
 )
-
-from app.core.config import settings
 
 
 class DatabaseManager:
