@@ -3,10 +3,9 @@ import logging
 import os
 from datetime import datetime
 
+from app.models.orm import Route, Shape, Stop, Stop_Time, Trip
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.models.orm import Route, Shape, Stop, Stop_Time, Trip
 
 logger = logging.getLogger(__name__)
 

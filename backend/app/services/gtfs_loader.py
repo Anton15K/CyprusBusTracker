@@ -7,13 +7,12 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-from sqlalchemy import text
-
 from app.core.config import ALLOWED_FILES
 from app.db.session import DatabaseManager
 from app.services.gtfs_static import GTFSParser
+from sqlalchemy import text
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cyprus_bus_tracker.gtfs_loader")
 
 
 class DatabaseReset:

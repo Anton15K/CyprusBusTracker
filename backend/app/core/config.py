@@ -36,9 +36,10 @@ class Settings(BaseSettings):
 
     # Telegram Bot
     telegram_bot_token: str | None = None
-    allowed_test_users: list[str] = ["serge_327", "ak_15_ka", "antongalalu", "tratatatanka"]
+    telegram_bot_name: str | None = None
+    allowed_test_users: list[str] = []
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
 
 settings = Settings()

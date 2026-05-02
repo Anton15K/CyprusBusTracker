@@ -36,6 +36,23 @@
   
   <button id="show-location-btn">Show My Location</button>
 
+  <button id="telegram-link-btn">🔗 Link Telegram</button>
+
+  <!-- Telegram Linking Modal -->
+  <div id="telegram-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Link Telegram Bot</h2>
+      <p>1. Open <a href="https://t.me/CyprusBusBot" target="_blank">@CyprusBusBot</a> on Telegram.</p>
+      <p>2. Send <b>/start</b> to get your verification code.</p>
+      <p>3. Enter your Telegram username and the code below:</p>
+      <input type="text" id="telegram-username" placeholder="Telegram Username (without @)" />
+      <input type="text" id="telegram-otp" placeholder="Verification Code" />
+      <button id="verify-otp-btn">Verify & Link</button>
+      <p id="verify-status"></p>
+    </div>
+  </div>
+
   <!-- Leaflet.js JavaScript -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 

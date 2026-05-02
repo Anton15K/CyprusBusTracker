@@ -1,11 +1,10 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from fastapi import FastAPI
-from httpx import ASGITransport, AsyncClient
-
 from app.api.v1 import buses, routing, stops
 from app.db.session import db_manager
+from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.fixture

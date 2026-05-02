@@ -1,10 +1,9 @@
 import logging
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.db.crud import get_routes_by_stop_id, get_trips_within_hour
 from app.db.session import db_manager
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

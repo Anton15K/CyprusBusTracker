@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.config import CYPRUS_TZ
 from app.services.gtfs_realtime import GTFSRealtimeParser
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 

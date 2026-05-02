@@ -3,7 +3,6 @@ from datetime import datetime
 
 import httpx
 import polyline
-
 from app.core.config import CYPRUS_TZ
 
 logger = logging.getLogger(__name__)

@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from backend.app.core.config import settings
 from backend.bot.bot import Bot
 from backend.bot.bot_db_functions import check_code, clear_all, get_codes, get_user_info
 
 load_dotenv()
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TEST_DB_URL = os.environ["BOT_TEST_DATABASE_URL"]
-NAME = "cyprus_bus_tracker_bot"
+NAME = settings.telegram_bot_name
 TEST_CHAT_ID = -1
 
 engine = create_async_engine(url=TEST_DB_URL)

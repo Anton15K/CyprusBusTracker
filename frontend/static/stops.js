@@ -94,6 +94,7 @@ export function fetchStopDetails(stop_id) {
                             <span class="route-code">${route.route_short_name}</span>
                             <span class="route-desc">${route.route_long_name}</span>
                             <span class="route-time">${route.arrival_time} min</span>
+                            <button class="subscribe-btn" onclick="window.subscribeToRoute('${stop_id}', '${route.route_id}', '${route.route_short_name}')" title="Notify me">🔔</button>
                         </div>
                     `;
                 });
@@ -116,4 +117,14 @@ window.refreshStopDetails = function (stop_id) {
         container.innerHTML = `<b>Refreshing...</b>`;
     }
     fetchStopDetails(stop_id);
+};
+
+window.subscribeToRoute = function(stop_id, route_id, route_name) {
+    if (localStorage.getItem('telegram_linked') !== 'true') {
+        alert("Please link your Telegram account first using the button in the bottom right corner.");
+        document.getElementById('telegram-modal').style.display = 'block';
+        return;
+    }
+
+    alert(`To subscribe to notifications for route ${route_name} at this stop, send this command to @CyprusBusBot on Telegram:\n\n/subscribe ${stop_id} ${route_id}\n\nYou can also add minutes (e.g. /subscribe ${stop_id} ${route_id} 5) to change when you get notified.`);
 };

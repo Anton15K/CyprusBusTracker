@@ -90,10 +90,10 @@ async def check_code(session: AsyncSession, username: str, code_entered: str) ->
         select(Telegram_OTP)
         .join(Telegram_User)
         .where(Telegram_User.username == username)
-        .where(not Telegram_OTP.is_used)
+        .where(Telegram_OTP.is_used == False)
         .where(Telegram_OTP.expires_at > current_time)
         .where(Telegram_OTP.otp_code == code_entered)
-        .order_by(Telegram_OTP.created_at)
+        .order_by(Telegram_OTP.created_at.desc())
     )
     result = await session.execute(stmt)
     otp = result.scalar_one_or_none()
@@ -119,3 +119,63 @@ async def approve_code(session: AsyncSession, code_id: int, chat_id: int):
         .where(Telegram_User.chat_id == chat_id)
         .values(is_active=True)
     )
+
+
+async def add_subscription(session: AsyncSession, chat_id: int, stop_id: str, route_id: str, minutes: int = 10):
+    from backend.app.models.orm import Notification_Subscription
+    
+    # Check if duplicate subscription already exists
+    stmt = select(Notification_Subscription).where(
+        Notification_Subscription.chat_id == chat_id,
+        Notification_Subscription.stop_id == stop_id,
+        Notification_Subscription.route_id == route_id,
+        Notification_Subscription.is_active == True
+    )
+    result = await session.execute(stmt)
+    if result.scalar_one_or_none():
+        return # Duplicate found, skip adding
+        
+    created_at = datetime.now()
+    sub = Notification_Subscription(
+        chat_id=chat_id,
+        stop_id=stop_id,
+        route_id=route_id,
+        notify_minutes_before=minutes,
+        is_active=True,
+        created_at=created_at
+    )
+    session.add(sub)
+
+
+async def get_subscriptions(session: AsyncSession, chat_id: int) -> list:
+    from backend.app.models.orm import Notification_Subscription
+    stmt = select(Notification_Subscription).where(Notification_Subscription.chat_id == chat_id)
+    result = await session.execute(stmt)
+    subs = result.scalars().all()
+    return [
+        {
+            "id": s.id,
+            "stop_id": s.stop_id,
+            "route_id": s.route_id,
+            "notify_minutes_before": s.notify_minutes_before,
+            "is_active": s.is_active,
+        }
+        for s in subs
+    ]
+
+
+async def remove_subscription(session: AsyncSession, chat_id: int, sub_id: int) -> bool:
+    from backend.app.models.orm import Notification_Subscription
+    stmt = delete(Notification_Subscription).where(
+        Notification_Subscription.id == sub_id,
+        Notification_Subscription.chat_id == chat_id
+    )
+    result = await session.execute(stmt)
+    return result.rowcount > 0
+
+
+async def get_active_subscriptions_all(session: AsyncSession) -> list:
+    from backend.app.models.orm import Notification_Subscription
+    stmt = select(Notification_Subscription).where(Notification_Subscription.is_active == True)
+    result = await session.execute(stmt)
+    return result.scalars().all()
