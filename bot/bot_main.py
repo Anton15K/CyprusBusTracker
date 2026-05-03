@@ -1,15 +1,13 @@
 import asyncio
-from tokenize import group
-
-from sqlalchemy.exc import SQLAlchemyError
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+
+from sqlalchemy.exc import SQLAlchemyError
 from random import randint
-from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta
 
-from backend.bot.bot_db_functions import get_user_info
-from bot_db_functions import add_code, add_user
+
+from bot_db_functions import add_code, add_user, get_user_info, link_in_db, find_pending_session
 
 class Bot:
     def __init__(self, token, name, logger, session_creating_method, tests=tuple()):
@@ -21,7 +19,7 @@ class Bot:
 
         self.__app = Application.builder().token(self.token).concurrent_updates(True).build()
         self.__app.add_handler(CommandHandler("start", self.__start_command))
-        #self.app.add_handler(CommandHandler("link", self.__link_command))
+        self.__app.add_handler(CommandHandler("link", self.__link_command))
         self.__app.add_handler(CommandHandler("test", self.__test_command))
         self.__app.add_handler(MessageHandler(filters.ALL, self.__check_if_message_expected), group=1)
 
@@ -54,19 +52,34 @@ class Bot:
                 if (chat_id, text) in self.__expected_messages.keys():
                     self.__expected_messages[(chat_id, text)].set()
 
-    async def issue_otp(self, chat):
+    async def link(self, chat, token_entered):
         async with self.__create_session() as session:
-            code = str(randint(1, 10**self.code_length-1)).zfill(self.code_length)
             try:
-                if await get_user_info(session, chat.id) == {}:
-                    await add_user(session, chat.id, chat.username, chat.first_name)
-                await add_code(session, chat.id, code, self.code_lifetime)
-                await session.commit()
-            except SQLAlchemyError:
+                if await find_pending_session(session, token_entered) is not None:
+                    await link_in_db(session, chat.id, token_entered)
+                    await session.commit()
+                    return True
+                return False
+            except SQLAlchemyError as e:
                 await session.rollback()
+                print(e)
                 return None
-            else:
-                return code
+
+    async def __link_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not len(context.args):
+            await update.message.reply_text("Usage: /link <Token>", do_quote=True)
+            return
+        token_entered = context.args[0]
+        result = await self.link(update.effective_chat, token_entered)
+        if result:
+            await update.message.reply_text("Linked! You can now manage subscriptions "
+                                            "on the web.", do_quote=True)
+        elif result == False:
+            await update.message.reply_text("Invalid or incorrect token, please try "
+                                            "again or request a new one", do_quote=True)
+        else:
+            await update.message.reply_text("An error was encountered, please try again",
+                                            do_quote=True)
 
     async def run_tests(self, chat, test_num=None):
         if test_num is None:
@@ -96,6 +109,20 @@ class Bot:
             await update.message.reply_text(f"Attempting test {test_num}", do_quote=True)
             await self.run_tests(update.effective_chat, test_num)
 
+    async def issue_otp(self, chat):
+        async with self.__create_session() as session:
+            code = str(randint(1, 10**self.code_length-1)).zfill(self.code_length)
+            try:
+                if await get_user_info(session, chat.id) == {}:
+                    await add_user(session, chat.id, chat.username, chat.first_name)
+                await add_code(session, chat.id, code, self.code_lifetime)
+                await session.commit()
+            except SQLAlchemyError:
+                await session.rollback()
+                return None
+            else:
+                return code
+
     async def __start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         otp = await self.issue_otp(update.effective_chat)
         if otp is not None:
@@ -120,13 +147,3 @@ class Bot:
     #             to_send.append(notification)
     #     await asyncio.gather(*[self.send_message(notif["chat_id"], notif["text"]) for notif in to_send])
     #     return True
-
-    # async def __link_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    #     if len(context.args) > 0:
-    #         token = context.args[0]
-    #         if check_token(token):
-    #             await update.message.reply_text("Linked! You can now manage subscriptions on the web.")
-    #         else:
-    #             await update.message.reply_text("Link failed (invalid token?), please try again")
-    #     else:
-    #         await update.message.reply_text("Usage: /link <token>")

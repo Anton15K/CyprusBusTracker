@@ -1,9 +1,18 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import (BigInteger, Boolean, Date, DateTime, Float, ForeignKey, Integer, String,
-    UniqueConstraint)
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr, mapped_column, relationship)
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 
 class Base(DeclarativeBase):

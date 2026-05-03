@@ -1,6 +1,4 @@
-from datetime import datetime
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 
@@ -91,6 +89,39 @@ async def approve_code(session: AsyncSession, code_id: int, chat_id: int):
     """)
     await session.execute(query1, {"current_time": current_time, "code_id": code_id})
     await session.execute(query2, {"chat_id": chat_id})
+
+async def add_pending_session(session: AsyncSession, token: str, token_lifetime: timedelta):
+    current_time = datetime.now()
+    expires_at = current_time + token_lifetime
+    query = text("""
+        INSERT INTO pending_web_sessions (token, created_at, expires_at)
+        VALUES (:token, :current_time, :expires_at);
+    """)
+    await session.execute(query, {"token": token, "current_time": current_time,
+                                  "expires_at": expires_at})
+
+async def find_pending_session(session: AsyncSession, token: str):
+    current_time = datetime.now()
+    query = text("""
+        SELECT * FROM pending_web_sessions
+        WHERE token = :token
+        AND expires_at > :current_time;
+    """)
+    result = await session.execute(query, {"token": token, "current_time": current_time})
+    row = result.one_or_none()
+    if row is None:
+        return None
+    else:
+        return {"token": row.token, "expires_at": row.expires_at, "created_at": row.created_at,
+                "chat_id": row.chat_id}
+
+async def link_in_db(session: AsyncSession, chat_id: int, token: str):
+    query = text("""
+        UPDATE pending_web_sessions
+        SET chat_id = :chat_id
+        WHERE token = :token;
+    """)
+    await session.execute(query, {"chat_id": chat_id, "token": token})
 
 # async def get_all_active_subscriptions(session: AsyncSession) -> list[dict]:
 #     query = text("""
