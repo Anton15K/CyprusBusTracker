@@ -1,10 +1,9 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
-
 from app.core.config import GRAPHQL_QUERY, settings
 from app.services.otp import query_graphql
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
