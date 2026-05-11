@@ -15,7 +15,8 @@ CyprusBusTracker provides a superior bus tracking experience for Cyprus. It leve
 ## Architecture & Tech Stack
 
 - **Frontend:** Server-rendered HTML using Jinja2 templates and Leaflet.js for interactive maps.
-- **Backend:** FastAPI (Python) handling API requests, GTFS processing, and the Telegram bot.
+- **Backend:** FastAPI (Python) handling API requests, frontend rendering, and GTFS processing.
+- **Telegram Bot:** Separate Docker service for Telegram polling and notification delivery.
 - **Database:** PostgreSQL (with `asyncpg` and SQLAlchemy `asyncio`) for static transit data.
 - **Routing Engine:** OpenTripPlanner (OTP) for trip planning and point-to-point routing.
 - **Notifications:** Telegram Bot API for real-time alerts.
@@ -58,10 +59,18 @@ The project uses `uv` for Python dependency management. All commands should be e
 
 ### Full Stack via Docker
 
-To run the entire stack (PostgreSQL, FastAPI backend, OpenTripPlanner) using Docker:
+To run the entire stack (PostgreSQL, FastAPI backend, Telegram bot, OpenTripPlanner) using Docker:
 
 ```bash
 docker compose up
+```
+
+The Telegram bot runs as a separate `telegram-bot` service. It uses the same PostgreSQL database as the backend, but its logs can be viewed separately:
+
+```bash
+docker compose logs -f backend
+docker compose logs -f telegram-bot
+docker compose logs -f db
 ```
 
 ---

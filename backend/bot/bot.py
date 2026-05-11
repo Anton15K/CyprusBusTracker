@@ -17,14 +17,7 @@ from backend.bot.bot_db_functions import (
     remove_subscription,
 )
 
-# Set up a dedicated logger for the bot
-bot_logger = logging.getLogger("cyprus_bus_tracker.bot")
-bot_logger.setLevel(logging.INFO)
-if not bot_logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    bot_logger.addHandler(handler)
+bot_logger = logging.getLogger("cyprus_bus_tracker.telegram_bot")
 
 
 class Bot:
