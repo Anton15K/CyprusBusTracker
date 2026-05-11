@@ -17,8 +17,10 @@ async def test_check_and_send_notifications(mocker):
     mock_session = AsyncMock()
     mock_session.add = MagicMock()  # Regular mock for add
 
-    mock_factory = MagicMock()
-    mock_factory.return_value.__aenter__.return_value = mock_session
+    mock_session_context = MagicMock()
+    mock_session_context.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session_context.__aexit__ = AsyncMock(return_value=None)
+    mock_factory = MagicMock(return_value=mock_session_context)
     mocker.patch("app.db.session.db_manager.session_factory", new=mock_factory)
 
     # Mock external calls
