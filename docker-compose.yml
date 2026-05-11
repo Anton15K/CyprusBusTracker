@@ -36,6 +36,21 @@ services:
       - ./otp_data:/app/otp_data
       - ./osm_data:/app/osm_data:ro
 
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["uv", "run", "python", "-m", "backend.bot.main"]
+    environment:
+      DB_URL: postgresql+asyncpg://cyprusbus:cyprusbus@db:5432/cyprusbus
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME}
+      ALLOWED_TEST_USERS: ${ALLOWED_TEST_USERS}
+
   otp:
     image: opentripplanner/opentripplanner:latest
     restart: unless-stopped
