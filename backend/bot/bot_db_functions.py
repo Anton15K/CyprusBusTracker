@@ -87,7 +87,7 @@ async def check_code(session: AsyncSession, username: str, code_entered: str) ->
         select(Telegram_OTP)
         .join(Telegram_User)
         .where(Telegram_User.username == username)
-        .where(not Telegram_OTP.is_used)
+        .where(Telegram_OTP.is_used.is_(False))
         .where(Telegram_OTP.expires_at > current_time)
         .where(Telegram_OTP.otp_code == code_entered)
         .order_by(Telegram_OTP.created_at.desc())
