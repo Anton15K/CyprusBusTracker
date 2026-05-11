@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
 import pytest
@@ -11,17 +12,16 @@ async def test_gtfs_parser_get_service_id(mocker):
 
     # row["date"] and row["service_id"]
     mocker.patch("os.path.isfile", return_value=True)
-    today = "20260511"  # Monday, May 11, 2026 as per session_context
+    today_str = datetime.today().strftime("%Y%m%d")
 
     mock_dt = mocker.Mock()
-    mock_dt.today.return_value.date.return_value.strftime.return_value = today
+    mock_dt.today.return_value.date.return_value.strftime.return_value = today_str
     mocker.patch("app.services.gtfs_static.datetime", mock_dt)
 
-    csv_data = "service_id,date,exception_type\n1,20260511,1\n"
+    csv_data = f"service_id,date,exception_type\n1,{today_str},1\n"
     with patch("builtins.open", mock_open(read_data=csv_data)):
         await parser._get_service_id()
         assert parser.service_id == 1
-
 
 @pytest.mark.asyncio
 async def test_gtfs_parser_insert_trips(mocker):
