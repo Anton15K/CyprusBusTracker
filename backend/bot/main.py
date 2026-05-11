@@ -10,7 +10,6 @@ from backend.app.db.session import db_manager
 from backend.app.services.notifications import check_and_send_notifications
 from backend.bot.bot import Bot
 
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("cyprus_bus_tracker.bot.main")
 logging.getLogger("httpx").setLevel(logging.WARNING)
