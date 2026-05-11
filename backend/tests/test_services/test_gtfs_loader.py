@@ -29,8 +29,11 @@ async def test_database_reset_and_insert(mocker):
 async def test_reset_and_insert_all(mocker):
     mock_db = MagicMock()
     mock_conn = AsyncMock()
-    # Mock engine.begin() context manager
-    mock_db.engine.begin.return_value.__aenter__.return_value = mock_conn
+    # Mock engine.begin() async context manager
+    mock_begin_cm = MagicMock()
+    mock_begin_cm.__aenter__ = AsyncMock(return_value=mock_conn)
+    mock_begin_cm.__aexit__ = AsyncMock(return_value=None)
+    mock_db.engine.begin.return_value = mock_begin_cm
 
     mocker.patch("os.listdir", return_value=["feed1"])
     mocker.patch("os.path.isdir", return_value=True)
