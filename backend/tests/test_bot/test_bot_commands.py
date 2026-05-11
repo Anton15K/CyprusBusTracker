@@ -114,6 +114,43 @@ async def test_unsubscribe_command_success(bot, mock_session, mocker):
 
 
 @pytest.mark.asyncio
+async def test_subscribe_command_invalid_args(bot):
+    update = MagicMock(spec=Update)
+    update.message.reply_text = AsyncMock()
+    context = MagicMock(spec=ContextTypes.DEFAULT_TYPE)
+
+    # Missing args
+    context.args = ["stop1"]
+    await bot._Bot__subscribe_command(update, context)
+    assert "Usage" in update.message.reply_text.call_args[0][0]
+
+    # Invalid minutes
+    context.args = ["stop1", "route1", "abc"]
+    await bot._Bot__subscribe_command(update, context)
+    assert "number" in update.message.reply_text.call_args[0][0]
+
+    # Negative minutes
+    context.args = ["stop1", "route1", "-5"]
+    await bot._Bot__subscribe_command(update, context)
+    assert "positive" in update.message.reply_text.call_args[0][0]
+
+@pytest.mark.asyncio
+async def test_unsubscribe_command_invalid_id(bot):
+    update = MagicMock(spec=Update)
+    update.message.reply_text = AsyncMock()
+    context = MagicMock(spec=ContextTypes.DEFAULT_TYPE)
+
+    # No ID
+    context.args = []
+    await bot._Bot__unsubscribe_command(update, context)
+    assert "Usage" in update.message.reply_text.call_args[0][0]
+
+    # Non-numeric ID
+    context.args = ["abc"]
+    await bot._Bot__unsubscribe_command(update, context)
+    assert "number" in update.message.reply_text.call_args[0][0]
+
+@pytest.mark.asyncio
 async def test_help_command(bot):
     update = MagicMock(spec=Update)
     update.message.reply_text = AsyncMock()
@@ -122,3 +159,4 @@ async def test_help_command(bot):
     await bot._Bot__help_command(update, context)
     update.message.reply_text.assert_called_once()
     assert "Available commands" in update.message.reply_text.call_args[0][0]
+
