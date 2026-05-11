@@ -10,8 +10,11 @@ async def test_lifespan(mocker):
     # Mock services used in lifespan
     mock_db = MagicMock()
     mock_db.init = AsyncMock()
-    mock_db.session_factory = MagicMock()
-    mock_db.session_factory.return_value.__aenter__.return_value = AsyncMock()
+    mock_session = AsyncMock()
+    mock_session_context = MagicMock()
+    mock_session_context.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session_context.__aexit__ = AsyncMock(return_value=None)
+    mock_db.session_factory = MagicMock(return_value=mock_session_context)
     mock_db.engine.dispose = AsyncMock()
     mocker.patch("app.main.db_manager", mock_db)
 
