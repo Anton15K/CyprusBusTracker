@@ -134,6 +134,7 @@ async def test_subscribe_command_invalid_args(bot):
     await bot._Bot__subscribe_command(update, context)
     assert "positive" in update.message.reply_text.call_args[0][0]
 
+
 @pytest.mark.asyncio
 async def test_unsubscribe_command_invalid_id(bot):
     update = MagicMock(spec=Update)
@@ -150,6 +151,7 @@ async def test_unsubscribe_command_invalid_id(bot):
     await bot._Bot__unsubscribe_command(update, context)
     assert "number" in update.message.reply_text.call_args[0][0]
 
+
 @pytest.mark.asyncio
 async def test_help_command(bot):
     update = MagicMock(spec=Update)
@@ -159,4 +161,3 @@ async def test_help_command(bot):
     await bot._Bot__help_command(update, context)
     update.message.reply_text.assert_called_once()
     assert "Available commands" in update.message.reply_text.call_args[0][0]
-
