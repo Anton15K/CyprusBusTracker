@@ -23,7 +23,12 @@ async def test_make_route_invalid_coords(client):
 
 @pytest.mark.asyncio
 async def test_make_route_success(client):
-    fake_result = [{"node": {"start": "2026-01-01T10:00", "end": "2026-01-01T10:30", "legs": []}}]
+    from datetime import datetime
+
+    today_str = datetime.today().strftime("%Y-%m-%d")
+    fake_result = [
+        {"node": {"start": f"{today_str}T10:00", "end": f"{today_str}T10:30", "legs": []}}
+    ]
     with patch("app.api.v1.routing.query_graphql", new=AsyncMock(return_value=fake_result)):
         payload = {
             "origin": {"lat": 35.16, "lng": 33.36},

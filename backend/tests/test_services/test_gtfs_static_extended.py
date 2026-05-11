@@ -23,6 +23,7 @@ async def test_gtfs_parser_get_service_id(mocker):
         await parser._get_service_id()
         assert parser.service_id == 1
 
+
 @pytest.mark.asyncio
 async def test_gtfs_parser_insert_trips(mocker):
     mock_session = AsyncMock()
