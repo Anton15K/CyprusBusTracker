@@ -5,6 +5,7 @@ from app.db.crud import get_shape_for_bus, stops_on_route, update_stop_times_and
 from app.db.session import db_manager
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,9 @@ router = APIRouter()
 
 
 @router.get("/api/get_buses")
+# Cache for 5 seconds to prevent hammering the DB/External API while staying near-live.
+# The external GTFS-RT feed updates frequently, and the bot updates the DB every 1 minute.
+@cache(expire=5)
 async def get_buses(session: AsyncSession = Depends(db_manager.scoped_session_dependency)):
     buses = []
     try:
@@ -22,6 +26,7 @@ async def get_buses(session: AsyncSession = Depends(db_manager.scoped_session_de
 
 
 @router.get("/buses/get_stops_on_route/{route_id}")
+@cache(expire=3600)
 async def get_stops_on_route(
     route_id: int, session: AsyncSession = Depends(db_manager.scoped_session_dependency)
 ):
@@ -30,6 +35,7 @@ async def get_stops_on_route(
 
 
 @router.get("/api/get_shape/{route_id}")
+@cache(expire=3600)
 async def get_shape(
     route_id: int, session: AsyncSession = Depends(db_manager.scoped_session_dependency)
 ):

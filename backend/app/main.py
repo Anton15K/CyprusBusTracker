@@ -13,6 +13,8 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -21,6 +23,7 @@ logger = logging.getLogger("cyprus_bus_tracker.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    FastAPICache.init(InMemoryBackend())
     reloader = GTFSDataReloader(
         db_manager=db_manager,
         gtfs_source_folder=settings.gtfs_source_folder,
