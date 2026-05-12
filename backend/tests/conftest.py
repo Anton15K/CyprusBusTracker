@@ -4,6 +4,8 @@ import pytest
 from app.api.v1 import buses, routing, stops, telegram
 from app.db.session import db_manager
 from fastapi import FastAPI
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from httpx import ASGITransport, AsyncClient
 
 
@@ -16,6 +18,7 @@ def mock_session():
 @pytest.fixture
 async def client(mock_session):
     test_app = FastAPI()
+    FastAPICache.init(InMemoryBackend())
     test_app.include_router(buses.router)
     test_app.include_router(stops.router)
     test_app.include_router(routing.router)
