@@ -13,11 +13,9 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
-from fastapi_cache.decorator import cache
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("cyprus_bus_tracker.main")
